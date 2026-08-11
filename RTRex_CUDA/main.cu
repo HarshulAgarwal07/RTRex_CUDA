@@ -194,9 +194,9 @@ vector<Cluster> disjointExtractCUDA(
     CUDA_CHECK(cudaMalloc(&d_clusterVerts, nVertices * sizeof(VertexIdx)));
 
     EdgeIdx maxToDelete = dg->nEdges; // worst case
-    Pair* d_toDelete;
+    ::Pair* d_toDelete;
     EdgeIdx* d_nToDelete;
-    CUDA_CHECK(cudaMalloc(&d_toDelete, maxToDelete * sizeof(Pair)));
+    CUDA_CHECK(cudaMalloc(&d_toDelete, maxToDelete * sizeof(::Pair)));
     CUDA_CHECK(cudaMalloc(&d_nToDelete, sizeof(EdgeIdx)));
 
     vector<Cluster> decomposition;

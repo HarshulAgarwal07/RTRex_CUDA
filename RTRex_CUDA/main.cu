@@ -24,9 +24,20 @@
 #include <set>
 #include <cstdio>
 #include <inttypes.h>
+#include <chrono>
 
 using namespace std;
 using namespace Escape;
+
+// Pair is defined in both gpu_common.cuh (global) and Escape::Pair.
+// The GPU .cu files use the global one; disambiguate here.
+using ::Pair;
+
+// Forward-declare populateStats from Escape/Decomposition.h
+// (avoiding the full include which pulls in OpenMP pragmas)
+namespace Escape {
+    void populateStats(CGraph* g, Cluster* clus);
+}
 
 // ============================================================
 // Print decomposition (same format as sequential version)
@@ -148,7 +159,7 @@ vector<Cluster> disjointExtractCUDA(
     map<VertexIdx, VertexIdx>& cluster_map)
 {
     printf("\n[Extraction] Starting GPU-accelerated extraction\n");
-    auto extractionStart = chrono::high_resolution_clock::now();
+    auto extractionStart = std::chrono::high_resolution_clock::now();
 
     VertexIdx nVertices = dg->nVertices;
     const EdgeIdx* h_offsets = cg->offsets;
@@ -408,8 +419,8 @@ vector<Cluster> disjointExtractCUDA(
         }
     }
 
-    auto extractionEnd = chrono::high_resolution_clock::now();
-    double elapsed = chrono::duration<double>(
+    auto extractionEnd = std::chrono::high_resolution_clock::now();
+    double elapsed = std::chrono::duration<double>(
         extractionEnd - extractionStart).count();
     printf("[Extraction] %d clusters in %.3f s\n", nClusters, elapsed);
 

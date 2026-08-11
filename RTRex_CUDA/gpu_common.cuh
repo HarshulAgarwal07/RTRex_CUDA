@@ -87,22 +87,7 @@ __device__ inline EdgeIdx getEdgeBinaryDevice(
     return binarySearchDevice(nbors, low, high, v2);
 }
 
-// ============================================================
-// Atomic double operations (for pre-sm_60 compatibility)
-// ============================================================
-#if __CUDA_ARCH__ >= 600
-    // atomicAdd for double is natively available on sm_60+
-#else
-__device__ inline double atomicAdd(double* address, double val) {
-    unsigned long long int* address_as_ull = (unsigned long long int*)address;
-    unsigned long long int old = *address_as_ull, assumed;
-    do {
-        assumed = old;
-        old = atomicCAS(address_as_ull, assumed,
-                        __double_as_longlong(val + __longlong_as_double(assumed)));
-    } while (assumed != old);
-    return __longlong_as_double(old);
-}
-#endif
+// atomicAdd(double*, double) is natively provided by CUDA on sm_60+
+// No fallback needed since we target sm_60+ only.
 
 #endif // GPU_COMMON_CUH

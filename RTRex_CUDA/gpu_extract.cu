@@ -57,7 +57,7 @@ __global__ void extractInnerKernel(
     const bool*      __restrict__ d_nbdBitMap,
     const bool*      __restrict__ d_clustered,
     double*          __restrict__ d_candidateWgt,
-    bool*            __restrict__ d_candidateFlag,
+    int* __restrict__ d_candidateFlag,
     double*          __restrict__ d_internalWgt,
     double*          __restrict__ d_potentialWgt,
     VertexIdx        u,
@@ -134,8 +134,8 @@ __global__ void extractInnerKernel(
                 // x is a two-hop candidate
                 if (d_clustered[x]) continue;
 
-                bool oldFlag = atomicExch(&d_candidateFlag[x], true);
-                if (!oldFlag) {
+                int oldFlag = atomicExch(&d_candidateFlag[x], 1);
+                if (oldFlag == 0) {
                     atomicAdd(d_potentialWgt, wgt);
                 }
                 atomicAdd(&d_candidateWgt[x], wgt);
@@ -190,7 +190,7 @@ bool gpuExtractInner(
 
     // Reset candidate arrays
     CUDA_CHECK(cudaMemset(dg->d_candidateWgt, 0, nVertices * sizeof(double)));
-    CUDA_CHECK(cudaMemset(dg->d_candidateFlag, 0, nVertices * sizeof(bool)));
+    CUDA_CHECK(cudaMemset(dg->d_candidateFlag, 0, nVertices * sizeof(int)));
 
     // Step 3: Launch extraction kernel
     {
@@ -230,10 +230,10 @@ bool gpuExtractInner(
 
     // Step 6: Extract candidates from device
     // Transfer candidateFlag to host, scan for set bits
-    bool* h_candidateFlag = new bool[nVertices];
+    int* h_candidateFlag = new int[nVertices];
     double* h_candidateWgtFull = new double[nVertices];
     CUDA_CHECK(cudaMemcpy(h_candidateFlag, dg->d_candidateFlag,
-                          nVertices * sizeof(bool), cudaMemcpyDeviceToHost));
+                          nVertices * sizeof(int), cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaMemcpy(h_candidateWgtFull, dg->d_candidateWgt,
                           nVertices * sizeof(double), cudaMemcpyDeviceToHost));
 
@@ -263,8 +263,8 @@ __global__ void markClusterEdgesKernel(
     int* __restrict__ d_edgeStatus,
     const EdgeIdx*   __restrict__ d_partnerMap,
     Pair*      __restrict__ d_toDelete,
-    EdgeIdx*   __restrict__ d_nToDelete,
-    EdgeIdx    maxToDelete)
+    unsigned long long* __restrict__ d_nToDelete,
+    unsigned long long maxToDelete)
 {
     VertexIdx idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= nClusterVerts) return;
@@ -280,7 +280,7 @@ __global__ void markClusterEdgesKernel(
         if (old == EDGE_ALIVE) {
             atomicExch(&d_edgeStatus[d_partnerMap[j]], EDGE_STACK);
 
-            EdgeIdx pos = atomicAdd(d_nToDelete, (EdgeIdx)1);
+            unsigned long long pos = atomicAdd(d_nToDelete, 1ULL);
             if (pos < maxToDelete) {
                 d_toDelete[pos].first  = z;
                 d_toDelete[pos].second = d_nbors[j];
@@ -298,7 +298,7 @@ void gpuMarkClusterEdges(
     VertexIdx  nClusterVerts,
     Pair*      d_toDelete,
     EdgeIdx*   nToDelete,
-    EdgeIdx    maxToDelete)
+    unsigned long long maxToDelete)
 {
     if (nClusterVerts == 0) return;
 

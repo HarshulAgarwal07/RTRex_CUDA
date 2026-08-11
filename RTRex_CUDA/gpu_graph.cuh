@@ -30,7 +30,7 @@ struct DeviceGraph {
 
     // Candidate accumulation (for extraction inner loop)
     double*    d_candidateWgt;  // length nVertices, two-hop candidate weights
-    bool*      d_candidateFlag; // length nVertices, set to true if vertex is a candidate
+    int*        d_candidateFlag; // length nVertices, set to 1 if vertex is a candidate
 
     // GPU-side work counters (per round)
     int*       d_hasStack;     // flag for edge stack non-empty check

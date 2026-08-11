@@ -55,7 +55,7 @@ void gpuMarkClusterEdges(
     const VertexIdx* d_clusterVerts,
     VertexIdx  nClusterVerts,
     Pair*      d_toDelete,
-    EdgeIdx*   nToDelete,
-    EdgeIdx    maxToDelete);
+    unsigned long long* nToDelete,
+    unsigned long long maxToDelete);
 
 #endif // GPU_EXTRACT_CUH

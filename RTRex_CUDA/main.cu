@@ -195,9 +195,9 @@ vector<Cluster> disjointExtractCUDA(
 
     EdgeIdx maxToDelete = dg->nEdges; // worst case
     ::Pair* d_toDelete;
-    EdgeIdx* d_nToDelete;
+    unsigned long long* d_nToDelete;
     CUDA_CHECK(cudaMalloc(&d_toDelete, maxToDelete * sizeof(::Pair)));
-    CUDA_CHECK(cudaMalloc(&d_nToDelete, sizeof(EdgeIdx)));
+    CUDA_CHECK(cudaMalloc(&d_nToDelete, sizeof(unsigned long long)));
 
     vector<Cluster> decomposition;
     int nClusters = 0;
@@ -394,11 +394,11 @@ vector<Cluster> disjointExtractCUDA(
         gpuMarkClusterEdges(dg, d_clusterVerts, allClusterVerts.size(),
                             d_toDelete, d_nToDelete, maxToDelete);
 
-        EdgeIdx nDel;
-        CUDA_CHECK(cudaMemcpy(&nDel, d_nToDelete, sizeof(EdgeIdx),
+        unsigned long long nDel;
+        CUDA_CHECK(cudaMemcpy(&nDel, d_nToDelete, sizeof(unsigned long long),
                               cudaMemcpyDeviceToHost));
         if (nDel > 0) {
-            gpuDeleteAndClean(dg, d_toDelete, nDel, eps);
+            gpuDeleteAndClean(dg, d_toDelete, (EdgeIdx)nDel, eps);
         }
 
         if ((nClusters) % 1000 == 0) {

@@ -115,16 +115,16 @@ void allocateDeviceState(DeviceGraph* dg)
     CUDA_CHECK(cudaMemset(dg->d_perVertex, 0, nVertices * sizeof(double)));
 
     // Extraction state
-    CUDA_CHECK(cudaMalloc(&dg->d_clustered, nVertices * sizeof(bool)));
-    CUDA_CHECK(cudaMemset(dg->d_clustered, 0, nVertices * sizeof(bool)));
+    CUDA_CHECK(cudaMalloc(&dg->d_clustered, nVertices * sizeof(int)));
+    CUDA_CHECK(cudaMemset(dg->d_clustered, 0, nVertices * sizeof(int)));
 
-    CUDA_CHECK(cudaMalloc(&dg->d_nbdBitMap, nVertices * sizeof(bool)));
+    CUDA_CHECK(cudaMalloc(&dg->d_nbdBitMap, nVertices * sizeof(int)));
 
     // Candidate accumulation arrays for extraction
     CUDA_CHECK(cudaMalloc(&dg->d_candidateWgt, nVertices * sizeof(double)));
     CUDA_CHECK(cudaMemset(dg->d_candidateWgt, 0, nVertices * sizeof(double)));
 
-    CUDA_CHECK(cudaMalloc(&dg->d_candidateFlag, nVertices * sizeof(bool)));
+    CUDA_CHECK(cudaMalloc(&dg->d_candidateFlag, nVertices * sizeof(int)));
 
     // Work counter for cleaning rounds
     CUDA_CHECK(cudaMalloc(&dg->d_hasStack, sizeof(int)));

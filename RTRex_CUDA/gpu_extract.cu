@@ -9,7 +9,7 @@
 __global__ void buildNbdBitMapKernel(
     const EdgeIdx*   __restrict__ d_offsets,
     const VertexIdx* __restrict__ d_nbors,
-    const char*      __restrict__ d_edgeStatus,
+    const int* __restrict__ d_edgeStatus,
     bool*            __restrict__ d_nbdBitMap,
     VertexIdx        u,
     Count            degu)
@@ -29,7 +29,7 @@ __global__ void buildNbdBitMapKernel(
 __global__ void clearNbdBitMapKernel(
     const EdgeIdx*   __restrict__ d_offsets,
     const VertexIdx* __restrict__ d_nbors,
-    const char*      __restrict__ d_edgeStatus,
+    const int* __restrict__ d_edgeStatus,
     bool*            __restrict__ d_nbdBitMap,
     VertexIdx        u,
     Count            degu)
@@ -52,7 +52,7 @@ __global__ void clearNbdBitMapKernel(
 __global__ void extractInnerKernel(
     const EdgeIdx*   __restrict__ d_offsets,
     const VertexIdx* __restrict__ d_nbors,
-    const char*      __restrict__ d_edgeStatus,
+    const int* __restrict__ d_edgeStatus,
     const Count*     __restrict__ d_degree,
     const bool*      __restrict__ d_nbdBitMap,
     const bool*      __restrict__ d_clustered,
@@ -260,7 +260,7 @@ __global__ void markClusterEdgesKernel(
     VertexIdx  nClusterVerts,
     const EdgeIdx*   __restrict__ d_offsets,
     const VertexIdx* __restrict__ d_nbors,
-    char*      __restrict__ d_edgeStatus,
+    int* __restrict__ d_edgeStatus,
     const EdgeIdx*   __restrict__ d_partnerMap,
     Pair*      __restrict__ d_toDelete,
     EdgeIdx*   __restrict__ d_nToDelete,
@@ -276,7 +276,7 @@ __global__ void markClusterEdgesKernel(
     for (EdgeIdx j = start; j < end; j++) {
         if (d_edgeStatus[j] != EDGE_ALIVE) continue;
 
-        char old = atomicExch(&d_edgeStatus[j], EDGE_STACK);
+        int old = atomicExch(&d_edgeStatus[j], EDGE_STACK);
         if (old == EDGE_ALIVE) {
             atomicExch(&d_edgeStatus[d_partnerMap[j]], EDGE_STACK);
 

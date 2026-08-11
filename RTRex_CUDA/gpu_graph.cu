@@ -102,11 +102,11 @@ void allocateDeviceState(DeviceGraph* dg)
     printf("[GPU Graph] Allocating state arrays\n");
 
     // Per-edge state
-    CUDA_CHECK(cudaMalloc(&dg->d_edgeStatus, nEdges * sizeof(char)));
+    CUDA_CHECK(cudaMalloc(&dg->d_edgeStatus, nEdges * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&dg->d_perEdge, nEdges * sizeof(double)));
 
     // Initialize edgeStatus to all 'Y' (alive)
-    CUDA_CHECK(cudaMemset(dg->d_edgeStatus, (int)'Y', nEdges * sizeof(char)));
+    CUDA_CHECK(cudaMemset(dg->d_edgeStatus, EDGE_ALIVE, nEdges * sizeof(int)));
     // Initialize perEdge to 0.0
     CUDA_CHECK(cudaMemset(dg->d_perEdge, 0, nEdges * sizeof(double)));
 
@@ -174,10 +174,10 @@ void syncWeightsDeviceToHost(
 // ============================================================
 // Sync edge status device → host
 // ============================================================
-void syncEdgeStatusDeviceToHost(const DeviceGraph* dg, char* h_edgeStatus)
+void syncEdgeStatusDeviceToHost(const DeviceGraph* dg, int* h_edgeStatus)
 {
     CUDA_CHECK(cudaMemcpy(h_edgeStatus, dg->d_edgeStatus,
-                          dg->nEdges * sizeof(char),
+                          dg->nEdges * sizeof(int),
                           cudaMemcpyDeviceToHost));
 }
 

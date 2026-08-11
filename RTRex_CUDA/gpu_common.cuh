@@ -19,11 +19,11 @@ const int THREADS_PER_BLOCK = 256;
 const int WARP_SIZE = 32;
 
 // ============================================================
-// Edge status constants (must match sequential: 'Y', 'N', 'S')
+// Edge status constants (int — CUDA atomics don't support char)
 // ============================================================
-const char EDGE_ALIVE = 'Y';
-const char EDGE_DEAD = 'N';
-const char EDGE_STACK = 'S';
+const int EDGE_ALIVE = 0;
+const int EDGE_DEAD  = 1;
+const int EDGE_STACK = 2;
 
 // ============================================================
 // CUDA error checking macro

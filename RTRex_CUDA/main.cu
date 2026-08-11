@@ -228,7 +228,7 @@ vector<Cluster> disjointExtractCUDA(
 
         // Simplified approach: sync edgeStatus once per round
         // For prototyping, sync every seed
-        char* h_edgeStatus = new char[dg->nEdges];
+        int* h_edgeStatus = new int[dg->nEdges];
         syncEdgeStatusDeviceToHost(dg, h_edgeStatus);
 
         // Filter alive neighbors

@@ -18,7 +18,7 @@ struct DeviceGraph {
     Count*     d_degree;       // length nVertices, degree of each vertex
 
     // Per-edge state
-    char*      d_edgeStatus;   // length nEdges: 'Y' alive, 'N' deleted, 'S' on stack
+    int* d_edgeStatus;   // length nEdges: 'Y' alive, 'N' deleted, 'S' on stack
     double*    d_perEdge;      // length nEdges, triangle weight per directed edge
 
     // Per-vertex triangle weight
@@ -73,7 +73,7 @@ void syncWeightsDeviceToHost(
 // ============================================================
 // Sync edge status device → host
 // ============================================================
-void syncEdgeStatusDeviceToHost(const DeviceGraph* dg, char* h_edgeStatus);
+void syncEdgeStatusDeviceToHost(const DeviceGraph* dg, int* h_edgeStatus);
 
 // ============================================================
 // Sync clustered bitmap device → host

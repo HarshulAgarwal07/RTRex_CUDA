@@ -31,7 +31,7 @@ __global__ void markLowWeightEdgesKernel(
     const VertexIdx* __restrict__ d_nbors,
     const Count*     __restrict__ d_degree,
     const double*    __restrict__ d_perEdge,
-    char*            __restrict__ d_edgeStatus,
+    int* __restrict__ d_edgeStatus,
     const EdgeIdx*   __restrict__ d_partnerMap,
     double           eps,
     VertexIdx        nVertices,
@@ -48,7 +48,7 @@ __global__ void markLowWeightEdgesKernel(
     double edgeWt = 1.0 / (double)(degu * degv);
 
     if (d_perEdge[i] < eps * edgeWt) {
-        char old = atomicExch(&d_edgeStatus[i], EDGE_STACK);
+        int old = atomicExch(&d_edgeStatus[i], EDGE_STACK);
         if (old == EDGE_ALIVE) {
             atomicExch(&d_edgeStatus[d_partnerMap[i]], EDGE_STACK);
         }
@@ -67,7 +67,7 @@ __global__ void processStackEdgesKernel(
     const Count*     __restrict__ d_degree,
     double*          __restrict__ d_perEdge,
     double*          __restrict__ d_perVertex,
-    char*            __restrict__ d_edgeStatus,
+    int* __restrict__ d_edgeStatus,
     const EdgeIdx*   __restrict__ d_partnerMap,
     VertexIdx        nVertices,
     EdgeIdx          nEdges)
@@ -130,7 +130,7 @@ __global__ void processStackEdgesKernel(
 // Kernel: Check if any 'S' edges remain
 // ============================================================
 __global__ void checkStackKernel(
-    const char* __restrict__ d_edgeStatus,
+    const int* __restrict__ d_edgeStatus,
     int*        __restrict__ d_hasStack,
     EdgeIdx     nEdges)
 {
@@ -212,7 +212,7 @@ __global__ void markGivenEdgesKernel(
     const Pair*      __restrict__ d_toDelete,
     const EdgeIdx*   __restrict__ d_offsets,
     const VertexIdx* __restrict__ d_nbors,
-    char*            __restrict__ d_edgeStatus,
+    int* __restrict__ d_edgeStatus,
     const EdgeIdx*   __restrict__ d_partnerMap,
     VertexIdx        nVertices,
     EdgeIdx          nToDelete)

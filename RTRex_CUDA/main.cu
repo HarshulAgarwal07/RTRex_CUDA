@@ -288,8 +288,8 @@ vector<Cluster> disjointExtractCUDA(
         syncEdgeStatusDeviceToHost(dg, h_edgeStatus);
         { Count dummy; syncWeightsDeviceToHost(dg, nullptr, h_perVertex, &dummy); }
 
-        if (nClusters % 100 == 0)
-            printf("  Extracted %d clusters...\n", nClusters);
+        printf("  Cluster %d: seed=%" PRId64 " size=%zu\n",
+               nClusters, u, clus.nVertices);
     }
 
     // ============================================================

@@ -185,10 +185,15 @@ static void runBulkCleanLoop(
             dg->d_partnerMap, nVertices, nEdges);
         CUDA_CHECK(cudaGetLastError());
         CUDA_CHECK(cudaDeviceSynchronize());
+
+        if (round % 20 == 0 && label[0] == 'e')
+            printf("  [clean %s] round %d...\n", label, round);
     }
 
     if (round >= maxRounds) {
         printf("[GPU Clean %s] WARNING: max rounds (%d) reached\n", label, maxRounds);
+    } else if (round > 0 && label[0] == 'e') {
+        printf("  [clean %s] converged in %d rounds\n", label, round);
     }
 }
 
@@ -249,5 +254,5 @@ void gpuDeleteAndClean(DeviceGraph* dg, const Pair* d_toDelete,
         CUDA_CHECK(cudaDeviceSynchronize());
     }
 
-    runBulkCleanLoop(dg, eps, 200, "extract");
+    runBulkCleanLoop(dg, eps, 50, "extract");
 }

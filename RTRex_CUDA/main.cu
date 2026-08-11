@@ -33,10 +33,22 @@ using namespace Escape;
 // The GPU .cu files use the global one; disambiguate here.
 using ::Pair;
 
-// Forward-declare populateStats from Escape/Decomposition.h
-// (avoiding the full include which pulls in OpenMP pragmas)
-namespace Escape {
-    void populateStats(CGraph* g, Cluster* clus);
+// Inline populateStats — avoids including Decomposition.h (pulls in OpenMP)
+static void populateStats(const CGraph* g, Cluster* clus)
+{
+    clus->nVertices = clus->vertices.size();
+    clus->nEdges = 0;
+    clus->cut = 0;
+    for (VertexIdx u : clus->vertices) {
+        for (EdgeIdx i = g->offsets[u]; i < g->offsets[u + 1]; i++) {
+            VertexIdx v = g->nbors[i];
+            if (clus->vertices.find(v) != clus->vertices.end())
+                clus->nEdges++;
+            else
+                clus->cut++;
+        }
+    }
+    clus->nEdges = clus->nEdges / 2;
 }
 
 // ============================================================

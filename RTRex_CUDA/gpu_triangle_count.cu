@@ -19,7 +19,7 @@ __global__ void triangleCountKernel(
     double*          __restrict__ d_perEdge,
     double*          __restrict__ d_perVertex,
     const EdgeIdx*   __restrict__ d_partnerMap,
-    Count*           __restrict__ d_totalTriangles,
+    unsigned long long* __restrict__ d_totalTriangles,
     VertexIdx        nVertices,
     EdgeIdx          nEdges)
 {
@@ -67,7 +67,7 @@ __global__ void triangleCountKernel(
             double wgt = 1.0 / (double)(degu * degv * degw);
 
             // Increment total triangle count
-            atomicAdd(d_totalTriangles, (Count)1);
+            atomicAdd(d_totalTriangles, 1ULL);
 
             // Update per-edge weights for all 6 directed edge copies
             // Edge (u,v) at index i
@@ -99,9 +99,9 @@ void gpuCommonNbr(DeviceGraph* dg)
     auto start = std::chrono::high_resolution_clock::now();
 
     // Reset total triangle count on device
-    Count* d_totalTriangles;
-    CUDA_CHECK(cudaMalloc(&d_totalTriangles, sizeof(Count)));
-    CUDA_CHECK(cudaMemset(d_totalTriangles, 0, sizeof(Count)));
+    unsigned long long* d_totalTriangles;
+    CUDA_CHECK(cudaMalloc(&d_totalTriangles, sizeof(unsigned long long)));
+    CUDA_CHECK(cudaMemset(d_totalTriangles, 0, sizeof(unsigned long long)));
 
     VertexIdx nVertices = dg->nVertices;
     // Cap blocks at a reasonable maximum
@@ -126,8 +126,10 @@ void gpuCommonNbr(DeviceGraph* dg)
     CUDA_CHECK(cudaDeviceSynchronize());
 
     // Copy total triangle count back
-    CUDA_CHECK(cudaMemcpy(&dg->totalTriangles, d_totalTriangles,
-                          sizeof(Count), cudaMemcpyDeviceToHost));
+    unsigned long long tmpCount;
+    CUDA_CHECK(cudaMemcpy(&tmpCount, d_totalTriangles,
+                          sizeof(unsigned long long), cudaMemcpyDeviceToHost));
+    dg->totalTriangles = (Count)tmpCount;
     CUDA_CHECK(cudaFree(d_totalTriangles));
 
     auto stop = std::chrono::high_resolution_clock::now();

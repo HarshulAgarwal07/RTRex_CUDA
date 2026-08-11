@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "write-in-cwd"
+    ],
+    "deny": [],
+    "ask": [],
+    "defaultMode": "allowAll"
+  }
+}

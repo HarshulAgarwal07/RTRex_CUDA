@@ -297,12 +297,12 @@ void gpuMarkClusterEdges(
     const VertexIdx* d_clusterVerts,
     VertexIdx  nClusterVerts,
     Pair*      d_toDelete,
-    EdgeIdx*   nToDelete,
+    unsigned long long* nToDelete,
     unsigned long long maxToDelete)
 {
     if (nClusterVerts == 0) return;
 
-    CUDA_CHECK(cudaMemset(nToDelete, 0, sizeof(EdgeIdx)));
+    CUDA_CHECK(cudaMemset(nToDelete, 0, sizeof(unsigned long long)));
 
     EdgeIdx nBlocks = (nClusterVerts + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
     if (nBlocks > 65535) nBlocks = 65535;

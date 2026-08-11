@@ -162,13 +162,18 @@ void syncWeightsDeviceToHost(
     double* h_perVertex,
     Count*  h_totalTriangles)
 {
-    CUDA_CHECK(cudaMemcpy(h_perEdge, dg->d_perEdge,
-                          dg->nEdges * sizeof(double),
-                          cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(h_perVertex, dg->d_perVertex,
-                          dg->nVertices * sizeof(double),
-                          cudaMemcpyDeviceToHost));
-    *h_totalTriangles = dg->totalTriangles;
+    if (h_perEdge) {
+        CUDA_CHECK(cudaMemcpy(h_perEdge, dg->d_perEdge,
+                              dg->nEdges * sizeof(double),
+                              cudaMemcpyDeviceToHost));
+    }
+    if (h_perVertex) {
+        CUDA_CHECK(cudaMemcpy(h_perVertex, dg->d_perVertex,
+                              dg->nVertices * sizeof(double),
+                              cudaMemcpyDeviceToHost));
+    }
+    if (h_totalTriangles)
+        *h_totalTriangles = dg->totalTriangles;
 }
 
 // ============================================================
